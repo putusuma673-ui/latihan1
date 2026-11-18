@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Matematika SMP</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#dbeafe,#ede9fe);
+  margin: 0;
+  padding: 15px;
+  color: #172554;
+}
+.container {
+  max-width: 700px;
+  margin: 20px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px #0002;
+}
+header {
+  background: #172554;
+  color: white;
+  padding: 22px;
+  border-radius: 15px;
+  text-align: center;
+}
+h1 { margin: 5px; }
+.info {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  font-weight: bold;
+}
+.progress {
+  background: #ddd;
+  height: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.bar {
+  height: 10px;
+  background: #22c55e;
+  width: 0%;
+}
+#question {
+  font-size: 19px;
+  line-height: 1.5;
+  margin: 25px 0;
+}
+.option {
+  display: block;
+  padding: 14px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+.option:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+.option input { margin-right: 10px; }
+button {
+  width: 100%;
+  padding: 15px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.feedback {
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 12px;
+  line-height: 1.6;
+}
+.correct { background: #dcfce7; color: #166534; }
+.wrong { background: #fee2e2; color: #991b1b; }
+#result { text-align: center; }
+.score { font-size: 45px; color: #16a34a; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<header>
+<h1>🎯 GAME MATEMATIKA</h1>
+<p>Tantangan 20 Soal Matematika SMP</p>
+</header>
+
+<div class="info">
+<span id="nomor">Soal 1/20</span>
+<span>Skor: <span id="score">0</span></span>
+</div>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<div id="game">
+<h3 id="materi"></h3>
+<div id="question"></div>
+<div id="options"></div>
+<div id="feedback"></div>
+<button id="check" disabled onclick="periksa()">
+PERIKSA JAWABAN
+</button>
+</div>
+
+<div id="result" style="display:none"></div>
+</div>
+
+<script>
+const soal = [
+{
+m:"SPLDV",
+q:"2 buku dan 3 pensil berharga Rp19.000. Satu buku dan 2 pensil berharga Rp11.000. Harga satu buku adalah ...",
+o:["Rp4.000","Rp5.000","Rp6.000","Rp7.000"],
+a:1,
+e:"Misalkan buku x dan pensil y. Diperoleh 2x+3y=19.000 dan x+2y=11.000. Hasilnya x=5.000."
+},
+{
+m:"SPLDV",
+q:"Jumlah umur Andi dan Budi 30 tahun. Umur Andi 4 tahun lebih tua. Umur Andi adalah ...",
+o:["13 tahun","15 tahun","17 tahun","19 tahun"],
+a:2,
+e:"A+B=30 dan A-B=4. Maka 2A=34, sehingga A=17 tahun."
+},
+{
+m:"SPLDV",
+q:"3 roti dan 2 susu seharga Rp21.000. 2 roti dan 1 susu seharga Rp13.000. Harga satu roti dan satu susu adalah ...",
+o:["Rp8.000","Rp9.000","Rp10.000","Rp11.000"],
+a:0,
+e:"Harga roti Rp5.000 dan susu Rp3.000. Total Rp8.000."
+},
+{
+m:"SPLDV",
+q:"Diketahui 2x+y=13 dan x-y=2. Nilai x+y adalah ...",
+o:["6","7","8","9"],
+a:2,
+e:"Diperoleh x=5 dan y=3. Jadi x+y=8."
+},
+{
+m:"Unsur Lingkaran",
+q:"Garis yang menghubungkan dua titik pada lingkaran dan melalui pusat disebut ...",
+o:["Busur","Tali busur","Diameter","Apotema"],
+a:2,
+e:"Diameter adalah tali busur yang melalui titik pusat."
+},
+{
+m:"Unsur Lingkaran",
+q:"Garis dari titik pusat yang tegak lurus tali busur disebut ...",
+o:["Jari-jari","Apotema","Busur","Diameter"],
+a:1,
+e:"Apotema adalah garis tegak lurus dari pusat menuju tali busur."
+},
+{
+m:"Unsur Lingkaran",
+q:"Daerah lingkaran yang dibatasi dua jari-jari dan satu busur disebut ...",
+o:["Tembereng","Juring","Diameter","Apotema"],
+a:1,
+e:"Juring merupakan daerah yang dibatasi dua jari-jari dan sebuah busur."
+},
+{
+m:"Keliling Lingkaran",
+q:"Lingkaran memiliki jari-jari 7 cm. Kelilingnya adalah ... (π=22/7)",
+o:["22 cm","44 cm","154 cm","49 cm"],
+a:1,
+e:"K=2πr=2×22/7×7=44 cm."
+},
+{
+m:"Luas Lingkaran",
+q:"Taman berdiameter 28 m. Luas taman adalah ... (π=22/7)",
+o:["308 m²","528 m²","616 m²","1.232 m²"],
+a:2,
+e:"r=14 m. L=πr²=22/7×14×14=616 m²."
+},
+{
+m:"Sudut Dalam Lingkaran",
+q:"ABCD merupakan segi empat tali busur. Jika sudut A=110°, sudut C adalah ...",
+o:["60°","70°","80°","110°"],
+a:1,
+e:"Sudut berhadapan berjumlah 180°. C=180°-110°=70°."
+},
+{
+m:"Sudut Luar Lingkaran",
+q:"Sudut luar segi empat tali busur di A adalah 65°. Sudut dalam yang berhadapan adalah ...",
+o:["55°","65°","115°","125°"],
+a:1,
+e:"Sudut luar segi empat tali busur sama dengan sudut dalam yang berhadapan."
+},
+{
+m:"Sudut Pusat dan Keliling",
+q:"Sudut pusat 100°. Sudut keliling yang menghadap busur sama adalah ...",
+o:["25°","50°","100°","200°"],
+a:1,
+e:"Sudut keliling = 1/2 × 100° = 50°."
+},
+{
+m:"Panjang Busur",
+q:"Jari-jari lingkaran 14 cm dan sudut pusat 90°. Panjang busur adalah ... (π=22/7)",
+o:["11 cm","22 cm","44 cm","88 cm"],
+a:1,
+e:"Panjang busur=90/360×2×22/7×14=22 cm."
+},
+{
+m:"Luas Juring",
+q:"Jari-jari juring 14 cm dan sudut pusat 90°. Luas juring adalah ...",
+o:["77 cm²","154 cm²","308 cm²","616 cm²"],
+a:1,
+e:"Luas juring=90/360×22/7×14²=154 cm²."
+},
+{
+m:"Luas Tembereng",
+q:"Jari-jari lingkaran 14 cm dengan sudut pusat 90°. Luas tembereng kecil adalah ... (π=22/7)",
+o:["42 cm²","56 cm²","98 cm²","154 cm²"],
+a:1,
+e:"Luas juring=154 cm². Luas segitiga=98 cm². Tembereng=154-98=56 cm²."
+},
+{
+m:"Tabung",
+q:"Tabung berjari-jari 7 cm dan tinggi 10 cm. Volumenya adalah ...",
+o:["770 cm³","1.540 cm³","2.200 cm³","3.080 cm³"],
+a:1,
+e:"V=πr²t=22/7×49×10=1.540 cm³."
+},
+{
+m:"Tabung",
+q:"Tabung tertutup berjari-jari 7 cm dan tinggi 10 cm. Luas permukaannya adalah ...",
+o:["374 cm²","440 cm²","748 cm²","880 cm²"],
+a:2,
+e:"L=2πr(r+t)=2×22/7×7×17=748 cm²."
+},
+{
+m:"Kerucut",
+q:"Kerucut berjari-jari 3 cm dan tinggi 4 cm. Volume kerucut adalah ... (π=3,14)",
+o:["12,56 cm³","28,26 cm³","37,68 cm³","113,04 cm³"],
+a:2,
+e:"V=1/3×π×r²×t=37,68 cm³."
+},
+{
+m:"Bola",
+q:"Bola memiliki jari-jari 7 cm. Luas permukaannya adalah ...",
+o:["154 cm²","308 cm²","462 cm²","616 cm²"],
+a:3,
+e:"L=4πr²=4×22/7×49=616 cm²."
+},
+{
+m:"Setengah Bola",
+q:"Kubah setengah bola padat berjari-jari 7 m. Luas seluruh permukaannya termasuk alas adalah ...",
+o:["154 m²","308 m²","462 m²","616 m²"],
+a:2,
+e:"Luas setengah bola padat=3πr²=3×22/7×49=462 m²."
+}
+];
+
+let nomor=0;
+let nilai=0;
+let pilihan=null;
+let sudahPeriksa=false;
+
+function tampilkan(){
+ const s=soal[nomor];
+ pilihan=null;
+ sudahPeriksa=false;
+
+ document.getElementById("materi").innerText=s.m;
+ document.getElementById("nomor").innerText=`Soal ${nomor+1}/20`;
+ document.getElementById("score").innerText=nilai*5;
+ document.getElementById("bar").style.width=(nomor/20*100)+"%";
+ document.getElementById("question").innerText=s.q;
+ document.getElementById("feedback").innerHTML="";
+ document.getElementById("feedback").className="";
+ document.getElementById("check").disabled=true;
+ document.getElementById("check").innerText="PERIKSA JAWABAN";
+
+ document.getElementById("options").innerHTML=s.o.map((x,i)=>`
+ <label class="option">
+ <input type="radio" name="jawaban" value="${i}"
+ onchange="pilih(${i})">
+ <b>${"ABCD"[i]}.</b> ${x}
+ </label>`).join("");
+}
+
+function pilih(i){
+ if(sudahPeriksa)return;
+ pilihan=i;
+ document.getElementById("check").disabled=false;
+}
+
+function periksa(){
+ if(!sudahPeriksa){
+  if(pilihan===null)return;
+  sudahPeriksa=true;
+  const s=soal[nomor];
+  const benar=pilihan===s.a;
+  if(benar)nilai++;
+
+  document.getElementById("score").innerText=nilai*5;
+
+  const f=document.getElementById("feedback");
+  f.className="feedback "+(benar?"correct":"wrong");
+  f.innerHTML=`
+  <b>${benar?"✓ JAWABAN BENAR!":"✗ JAWABAN BELUM TEPAT"}</b>
+  <p><b>Kunci: ${"ABCD"[s.a]}. ${s.o[s.a]}</b></p>
+  <p><b>Pembahasan:</b> ${s.e}</p>`;
+
+  document.querySelectorAll('input[name="jawaban"]')
+    .forEach(x=>x.disabled=true);
+
+  document.getElementById("check").innerText=
+    nomor===19?"LIHAT HASIL":"SOAL BERIKUTNYA";
+
+ }else{
+  if(nomor<19){
+   nomor++;
+   tampilkan();
+  }else{
+   selesai();
+  }
+ }
+}
+
+function selesai(){
+ document.getElementById("bar").style.width="100%";
+ document.getElementById("game").style.display="none";
+ const predikat=nilai>=18?"Sangat Baik":
+ nilai>=15?"Baik":
+ nilai>=12?"Cukup":
+ nilai>=10?"Perlu Latihan":"Perlu Bimbingan";
+
+ const r=document.getElementById("result");
+ r.style.display="block";
+ r.innerHTML=`
+ <h1>🏆 PERMAINAN SELESAI!</h1>
+ <div class="score">${nilai*5}/100</div>
+ <h2>${predikat}</h2>
+ <p>Jawaban benar: ${nilai} dari 20 soal</p>
+ <p>Jawaban salah: ${20-nilai} soal</p>
+ <button onclick="location.reload()">🔄 MAIN LAGI</button>`;
+}
+
+tampilkan();
+</script>
+</body>
+</html>
